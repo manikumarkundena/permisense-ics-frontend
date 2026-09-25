@@ -342,11 +342,20 @@ export const apiClient = {
     return normalizeIncident(payload);
   },
 
-  updateIncidentStatus: (incidentId: string, status: IncidentStatus) =>
-    request<IncidentSummary>(`/api/incidents/${encodeURIComponent(incidentId)}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status: String(status).toLowerCase() }),
-    }),
+  updateIncidentStatus: (incidentId: string, status: IncidentStatus) => {
+    const backendStatus =
+      status === 'CONTAINED'
+        ? 'responded'
+        : String(status).toLowerCase();
+
+    return request<IncidentSummary>(
+      `/api/incidents/${encodeURIComponent(incidentId)}/status`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status: backendStatus }),
+      }
+    );
+  },
 
   getResponsePlan: async (incidentId: string): Promise<ResponsePlan | null> => {
     const payload = await request<Record<string, any>>(
