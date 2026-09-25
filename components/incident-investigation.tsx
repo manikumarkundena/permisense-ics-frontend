@@ -401,10 +401,10 @@ export function IncidentInvestigation({
             RECOMMENDED RESPONSE ACTION (MANDATORY HUMAN APPROVAL)
           </span>
           <div className="text-base font-semibold text-slate-100">
-            {response_plan.recommended_action}: {response_plan.description}
+            {responsePlan?.recommended_action ?? 'NO RESPONSE PLAN'}: {responsePlan?.description ?? 'No response plan available.'}
           </div>
           <div className="text-xs font-mono text-slate-400 mt-1">
-            Target: {response_plan.register} ({response_plan.current_value} → {response_plan.target_value} {response_plan.unit})
+            Target: {responsePlan?.register ?? 'N/A'} ({responsePlan?.current_value ?? 0} → {responsePlan?.target_value ?? 0} {responsePlan?.unit ?? ''})
           </div>
         </div>
 
