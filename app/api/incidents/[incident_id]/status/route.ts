@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { virtualCell } from '@/lib/backend/virtual-cell';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,31 +7,27 @@ export async function PATCH(
   { params }: { params: Promise<{ incident_id: string }> }
 ) {
   const { incident_id } = await params;
-  try {
-    const body = await req.json();
-    const { status } = body;
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
 
-    const validStatuses = ['OPEN', 'INVESTIGATING', 'CONTAINED', 'RECOVERED', 'CLOSED'];
-    if (!status || !validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status', detail: `Status must be one of: ${validStatuses.join(', ')}` },
-        { status: 400 }
-      );
-    }
+  const body = await req.text();
+  let payload: Record<string, unknown> = {};
+  try { payload = JSON.parse(body); } catch {}
 
-    const updated = virtualCell.updateIncidentStatus(incident_id, status);
-    if (!updated) {
-      return NextResponse.json(
-        { error: 'Not found', detail: `Incident ${incident_id} not found.` },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(updated);
-  } catch (err) {
-    return NextResponse.json(
-      { error: 'Bad Request', detail: (err as Error).message },
-      { status: 400 }
-    );
+  if (typeof payload.status === 'string') {
+    payload.status = payload.status.toLowerCase();
   }
+
+  const response = await fetch(`${base}/api/incidents/${encodeURIComponent(incident_id)}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+
+  const text = await response.text();
+  return new NextResponse(text, {
+    status: response.status,
+    headers: { 'Content-Type': response.headers.get('content-type') || 'application/json' },
+  });
 }
