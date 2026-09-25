@@ -125,7 +125,77 @@ export const apiClient = {
       { method: 'POST' }
     ),
 
-  getDemoStatus: () => request<DemoStatusResponse>('/api/demo/status'),
+  getDemoStatus: async (): Promise<DemoStatusResponse> => {
+    const payload = await request<{
+      status: 'ready' | 'offline' | 'degraded';
+      plc: string | DemoStatusResponse['plc'];
+      process: DemoStatusResponse['process'];
+      controls?: DemoStatusResponse['controls'];
+      scenarios?: {
+        speed?: string;
+        mode?: string;
+        speed_attack_active?: boolean;
+        mode_attack_active?: boolean;
+        last_scenario_time?: string | null;
+      };
+      error?: string;
+    }>('/api/demo/status');
+
+    // Normalize the live backend response once so every UI surface consumes
+    // the same contract. The backend returns raw PLC status strings; the
+    // frontend route may return the richer PLC object.
+    const plc =
+      typeof payload.plc === 'string'
+        ? {
+            id: 'PLC-01',
+            name: 'PermiSense Virtual PLC',
+            protocol: 'Modbus/TCP',
+            host: 'backend',
+            port: 5020,
+            connection: payload.plc,
+          }
+        : payload.plc;
+
+    const controls = payload.controls ?? {
+      motor_enable: 0,
+      operating_mode: 0,
+      speed_setpoint: 0,
+      acceleration_limit: 0,
+      production_target: 0,
+      overspeed_limit: 75,
+      high_load_limit: 80,
+      jam_timeout: 5,
+      config_version: 0,
+    };
+
+    const process =
+      payload.process === 'unavailable'
+        ? 'unavailable'
+        : {
+            ...payload.process,
+            state_label:
+              payload.process.state_label ??
+              ({ 0: 'STOPPED', 1: 'RUNNING', 2: 'IDLE', 3: 'FAULT' } as Record<number, string>)[payload.process.state] ??
+              `STATE_${payload.process.state}`,
+          };
+
+    return {
+      status: payload.status,
+      plc,
+      process,
+      controls,
+      scenarios: {
+        speed_attack_active:
+          payload.scenarios?.speed_attack_active ??
+          (Number(controls.speed_setpoint) > Number(controls.overspeed_limit)),
+        mode_attack_active:
+          payload.scenarios?.mode_attack_active ??
+          (Number(controls.operating_mode) === 0),
+        last_scenario_time: payload.scenarios?.last_scenario_time ?? null,
+      },
+      error: payload.error,
+    };
+  },
 
   triggerSpeedScenario: () =>
     request<{ scenario?: string; description?: string; result?: { register_address?: number; previous_value?: number; value?: number; execution?: string; allowlisted?: boolean } }>(
