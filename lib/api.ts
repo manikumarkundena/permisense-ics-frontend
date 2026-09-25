@@ -147,6 +147,41 @@ function normalizeResponsePlan(raw: Record<string, any>): ResponsePlan | null {
 }
 
 
+function normalizeCopilotBrief(raw: Record<string, any>): CopilotBriefResponse {
+  const copilot = raw.copilot ?? raw;
+  const evidence = Array.isArray(copilot.evidence)
+    ? copilot.evidence.map((item: unknown) => String(item))
+    : [];
+
+  return {
+    incident_id: String(raw.incident_id ?? ''),
+    generated_at: String(raw.generated_at ?? new Date().toISOString()),
+    summary: String(copilot.summary ?? ''),
+    evidence_breakdown: evidence,
+    operational_impact: String(copilot.impact ?? ''),
+    recommended_action: String(copilot.recommended_action ?? 'No response recommendation returned.'),
+    confidence_and_limitations: String(
+      copilot.confidence_note ?? 'The backend did not provide additional confidence notes.'
+    ),
+    model: String(copilot.model ?? 'backend-configured model'),
+  };
+}
+
+function normalizeCopilotChat(raw: Record<string, any>): CopilotChatResponse {
+  const copilot = raw.copilot ?? raw;
+
+  return {
+    incident_id: String(raw.incident_id ?? ''),
+    question: String(raw.question ?? ''),
+    answer: String(copilot.answer ?? ''),
+    evidence_used: Array.isArray(copilot.evidence_used)
+      ? copilot.evidence_used.map((item: unknown) => String(item))
+      : [],
+    action_advisory: String(copilot.action_advisory ?? ''),
+    limitations: String(copilot.limitation ?? copilot.limitations ?? ''),
+  };
+}
+
 function normalizeIncident(raw: Record<string, any>): IncidentDetail {
   const control = raw.control ?? {};
   const impact = raw.impact ?? {};
@@ -469,18 +504,22 @@ export const apiClient = {
       { method: 'POST' }
     ),
 
-  generateCopilotBrief: (incidentId: string) =>
-    request<CopilotBriefResponse>(
+  generateCopilotBrief: async (incidentId: string): Promise<CopilotBriefResponse> => {
+    const payload = await request<Record<string, any>>(
       `/api/incidents/${encodeURIComponent(incidentId)}/copilot`,
       { method: 'POST' }
-    ),
+    );
+    return normalizeCopilotBrief(payload);
+  },
 
-  askCopilot: (incidentId: string, question: string) =>
-    request<CopilotChatResponse>(
+  askCopilot: async (incidentId: string, question: string): Promise<CopilotChatResponse> => {
+    const payload = await request<Record<string, any>>(
       `/api/incidents/${encodeURIComponent(incidentId)}/copilot/chat`,
       {
         method: 'POST',
         body: JSON.stringify({ question }),
       }
-    ),
+    );
+    return normalizeCopilotChat(payload);
+  },
 };
