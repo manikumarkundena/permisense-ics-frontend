@@ -140,7 +140,7 @@ export const apiClient = {
     ),
 
   resetDemo: () =>
-    request<{ success?: boolean; message?: string; state?: unknown }>(
+    request<{ success?: boolean; message?: string; description?: string; state?: unknown }>(
       '/api/demo/reset',
       { method: 'POST' }
     ),
