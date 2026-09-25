@@ -57,31 +57,63 @@ export interface HealthResponse {
 export interface TelemetryEvent {
   event_id: string;
   timestamp: string;
-  channel: 'MODBUS_DPI' | 'PLC_TELEMETRY' | 'CORRELATION_ENGINE' | 'RESPONSE_EXEC';
   source: string;
   event_type: string;
+  asset_id?: string;
+  asset_type?: string;
+  source_address?: string;
+  destination_address?: string;
+  protocol?: string;
+  command?: string;
+  register_address?: number;
   register?: string;
-  register_name?: string;
   value?: number;
+  previous_value?: number;
   unit?: string;
+  process_id?: string;
+  severity?: string;
   message: string;
+  channel?: 'MODBUS_DPI' | 'PLC_TELEMETRY' | 'CORRELATION_ENGINE' | 'RESPONSE_EXEC' | 'SYSTEM';
   raw_payload?: Record<string, unknown>;
+}
+
+export interface ResponseRecommendation {
+  action: string;
+  description: string;
+  register_address: number;
+  register_name?: string;
+  current_value?: number;
+  target_value: number;
+  unit?: string;
+  requires_human_approval: boolean;
+  verification_register?: number | null;
+  verification_register_name?: string | null;
+  verification_type?: string;
+  verification_threshold?: string;
 }
 
 export interface ResponsePlan {
   incident_id: string;
-  recommendations?: Array<{
-    action: string;
-    description: string;
-    register_address: number;
-    current_value?: number;
-    target_value: number;
-    requires_human_approval: boolean;
-    verification_register?: number;
-  }>;
-  approved?: boolean;
-  executed?: boolean;
-  recovered?: boolean;
+  recommendations: ResponseRecommendation[];
+  approved: boolean;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  executed: boolean;
+  executed_at?: string | null;
+  recovered: boolean;
+  approval_state: ResponseApprovalState;
+  execution_state: ResponseExecutionState;
+  recovery_state: RecoveryState;
+  recommended_action: string;
+  description: string;
+  register: string;
+  register_name: string;
+  current_value: number;
+  target_value: number;
+  unit: string;
+  verification_register: string;
+  verification_threshold: string;
+  approved_by_display?: string;
   [key: string]: unknown;
 }
 
@@ -106,6 +138,7 @@ export interface IncidentSummary {
   timestamp: string;
   summary?: string;
   reason?: string;
+  process_name?: string;
   risk_score?: number;
   risk?: Record<string, unknown>;
   [key: string]: unknown;
