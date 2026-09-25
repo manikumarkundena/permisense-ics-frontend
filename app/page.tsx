@@ -217,18 +217,28 @@ export default function HomePage() {
 
             {/* View: Response Gate */}
             {currentView === 'response' && (
-              <ResponseGate
-                incidentId={selectedIncidentId || (incidents[0]?.incident_id ?? 'INC-000000')}
-                responsePlan={selectedResponsePlan}
-                onResponseUpdated={handleRefreshAll}
-              />
+              selectedIncidentId ? (
+                <ResponseGate
+                  incidentId={selectedIncidentId}
+                  responsePlan={selectedResponsePlan}
+                  onResponseUpdated={handleRefreshAll}
+                />
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500 font-mono text-sm">
+                  No incident is selected. Open an incident from the Incident Queue before entering the Response Gate.
+                </div>
+              )
             )}
 
             {/* View: Evidence Copilot */}
             {currentView === 'copilot' && (
-              <CopilotPanel
-                incidentId={selectedIncidentId || (incidents[0]?.incident_id ?? 'INC-000000')}
-              />
+              selectedIncidentId ? (
+                <CopilotPanel incidentId={selectedIncidentId} />
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500 font-mono text-sm">
+                  No incident is selected. Open an incident from the Incident Queue before using Evidence Copilot.
+                </div>
+              )
             )}
 
             {/* View: Demo Lab */}
