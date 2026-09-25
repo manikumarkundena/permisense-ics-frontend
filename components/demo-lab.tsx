@@ -35,6 +35,23 @@ export function DemoLab({
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const handleRestoreBaseline = async () => {
+    setTriggeringScenario('reset');
+    setStatusMsg(null);
+    setErrorMsg(null);
+    try {
+      const res = await apiClient.resetDemo();
+      setStatusMsg(
+        `Real Modbus/TCP baseline restore executed: R40002 → 1 (RUN/Auto), R40003 → 50 RPM. ${res.description ?? 'Virtual PLC baseline restored.'}`
+      );
+      onRefresh();
+    } catch (err: unknown) {
+      setErrorMsg((err as Error).message);
+    } finally {
+      setTriggeringScenario(null);
+    }
+  };
+
   const activeIncident = incidents[0] || null;
   const isOverspeed = (demoStatus?.process.speed || 0) > (demoStatus?.controls.overspeed_limit || 75);
   const isAttackActive = demoStatus?.scenarios.speed_attack_active || isOverspeed;
@@ -149,7 +166,14 @@ export function DemoLab({
               Trigger Mode Override
             </button>
 
-
+            <button
+              onClick={handleRestoreBaseline}
+              disabled={!!triggeringScenario}
+              className="px-3.5 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-800 text-white text-xs font-mono font-semibold uppercase flex items-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+            >
+              <CheckCircle className="w-3 h-3" />
+              {triggeringScenario === 'reset' ? 'RESTORING BASELINE...' : 'RESTORE DEMO BASELINE'}
+            </button>
           </div>
         </div>
 
