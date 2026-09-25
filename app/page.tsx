@@ -17,12 +17,13 @@ import { useDemoStatus } from '@/hooks/use-demo-status';
 import { useIncidents } from '@/hooks/use-incidents';
 import { useLiveEvents } from '@/hooks/use-live-events';
 import { apiClient, ApiError } from '@/lib/api';
-import type { IncidentDetail, IncidentStatus } from '@/lib/types';
+import type { IncidentDetail, IncidentStatus, ResponsePlan } from '@/lib/types';
 
 export default function HomePage() {
   const [currentView, setCurrentView] = useState<string>('landing');
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [selectedIncidentDetail, setSelectedIncidentDetail] = useState<IncidentDetail | null>(null);
+  const [selectedResponsePlan, setSelectedResponsePlan] = useState<ResponsePlan | null>(null);
   const [loadingIncidentDetail, setLoadingIncidentDetail] = useState(false);
 
   // Authoritative real hooks
@@ -35,10 +36,15 @@ export default function HomePage() {
   const loadIncidentDetail = useCallback(async (id: string) => {
     setLoadingIncidentDetail(true);
     try {
-      const detail = await apiClient.getIncident(id);
+      const [detail, responsePlan] = await Promise.all([
+        apiClient.getIncident(id),
+        apiClient.getResponsePlan(id),
+      ]);
       setSelectedIncidentDetail(detail);
+      setSelectedResponsePlan(responsePlan);
     } catch {
       setSelectedIncidentDetail(null);
+      setSelectedResponsePlan(null);
     } finally {
       setLoadingIncidentDetail(false);
     }
@@ -195,6 +201,7 @@ export default function HomePage() {
             {currentView === 'incident-detail' && (
               <IncidentInvestigation
                 incident={selectedIncidentDetail}
+                responsePlan={selectedResponsePlan}
                 loading={loadingIncidentDetail}
                 onNavigateToResponse={(id) => handleNavigate('response', id)}
                 onUpdateStatus={handleUpdateIncidentStatus}
@@ -205,7 +212,7 @@ export default function HomePage() {
             {currentView === 'response' && (
               <ResponseGate
                 incidentId={selectedIncidentId || (incidents[0]?.incident_id ?? 'INC-000000')}
-                responsePlan={selectedIncidentDetail?.response_plan || null}
+                responsePlan={selectedResponsePlan}
                 onResponseUpdated={handleRefreshAll}
               />
             )}
@@ -245,7 +252,7 @@ export default function HomePage() {
             <span>·</span>
             <span>Passive Modbus/TCP Gateway (Port 502)</span>
             <span>·</span>
-            <span>OpenAPI 3.0 Contract</span>
+            <span>OpenAPI 3.1 Contract</span>
           </div>
         </div>
       </footer>
