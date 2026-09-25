@@ -358,7 +358,48 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
 
 export const apiClient = {
   getHealth: () => request<HealthResponse>('/api/health'),
-  getSystemStatus: () => request<SystemStatusResponse>('/api/system/status'),
+
+  getSystemStatus: async (): Promise<SystemStatusResponse> => {
+    const backend = await request<Record<string, any>>('/api/system/status');
+    const status = String(backend.status ?? '').toLowerCase();
+
+    const componentStatus = (value: unknown): SystemStatusResponse['components']['plc']['status'] => {
+      const normalized = String(value ?? '').toLowerCase();
+      if (normalized === 'online' || normalized === 'configured') return 'ONLINE';
+      if (normalized === 'degraded') return 'DEGRADED';
+      if (normalized === 'offline') return 'OFFLINE';
+      return 'UNAVAILABLE';
+    };
+
+    return {
+      status:
+        status === 'operational'
+          ? 'HEALTHY'
+          : status === 'degraded'
+          ? 'WARNING'
+          : 'OFFLINE',
+      timestamp: new Date().toISOString(),
+      version: String(backend.version ?? 'backend'),
+      runtime_mode: 'REAL_MODBUS_VIRTUAL_PLC',
+      components: {
+        plc: {
+          status: componentStatus(backend.components?.modbus),
+          protocol: 'Modbus/TCP',
+        },
+        gateway: {
+          status: 'ONLINE',
+          protocol: 'Passive DPI',
+        },
+        database: {
+          status: componentStatus(backend.components?.database),
+        },
+        copilot: {
+          status: componentStatus(backend.components?.ai_copilot),
+        },
+      },
+      backend,
+    };
+  },
 
   // Telemetry history is not exposed by the authoritative backend.
   // Live telemetry arrives through /ws/events instead.
