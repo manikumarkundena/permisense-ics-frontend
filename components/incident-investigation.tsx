@@ -204,12 +204,12 @@ export function IncidentInvestigation({
                 04. CORRELATION
               </span>
               <div className="text-xs font-bold text-slate-900 mt-1 font-mono">
-                Δt = {correlation.time_delta_ms}ms
+                Δt = {correlation.time_delta_ms == null ? 'N/A' : `${correlation.time_delta_ms}ms`}
               </div>
-              <div className="text-[11px] text-slate-600 mt-0.5">Window: &lt;1000ms</div>
+              <div className="text-[11px] text-slate-600 mt-0.5">Window: {correlation.window_seconds == null ? 'N/A' : `${correlation.window_seconds}s`}</div>
             </div>
             <div className="mt-2 pt-2 border-t border-slate-200/80 text-[11px] font-mono text-indigo-700 font-bold">
-              Causality: {correlation.causality_score}%
+              Causality: {correlation.causality_score == null ? 'N/A' : `${correlation.causality_score}%`}
             </div>
           </div>
 
@@ -222,7 +222,7 @@ export function IncidentInvestigation({
               <div className="text-xs font-bold text-slate-900 mt-1 font-mono">
                 {operational_impact.physical_process_state}
               </div>
-              <div className="text-[11px] text-slate-600 mt-0.5">Ceiling: {operational_impact.safe_limit} RPM</div>
+              <div className="text-[11px] text-slate-600 mt-0.5">Bound: {operational_impact.safe_limit} {operational_impact.unit}</div>
             </div>
             <div className="mt-2 pt-2 border-t border-slate-200/80 text-[11px] font-mono text-amber-700 font-bold">
               Obs: {operational_impact.observed_value} {operational_impact.unit}
