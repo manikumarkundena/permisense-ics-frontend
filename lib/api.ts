@@ -420,7 +420,7 @@ export const apiClient = {
             ...payload.process,
             state_label:
               payload.process.state_label ??
-              ({ 0: 'STOPPED', 1: 'RUNNING', 2: 'IDLE', 3: 'FAULT' } as Record<number, string>)[payload.process.state] ??
+              ({ 0: 'STOPPED', 1: 'STARTING', 2: 'RUNNING', 3: 'DEGRADED', 4: 'JAMMED', 5: 'FAULT' } as Record<number, string>)[payload.process.state] ??
               `STATE_${payload.process.state}`,
           };
 
