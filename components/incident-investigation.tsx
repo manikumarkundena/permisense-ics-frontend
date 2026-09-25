@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { IncidentDetail, IncidentStatus } from '@/lib/types';
+import type { IncidentDetail, IncidentStatus, ResponsePlan } from '@/lib/types';
 import { formatDate, getSeverityBadgeClass, getStatusBadgeClass } from '@/lib/formatters';
 import {
   ShieldAlert,
@@ -16,6 +16,7 @@ import {
 
 interface IncidentInvestigationProps {
   incident: IncidentDetail | null;
+  responsePlan?: ResponsePlan | null;
   loading?: boolean;
   onNavigateToResponse?: (incidentId: string) => void;
   onUpdateStatus?: (incidentId: string, newStatus: IncidentStatus) => Promise<void>;
@@ -23,6 +24,7 @@ interface IncidentInvestigationProps {
 
 export function IncidentInvestigation({
   incident,
+  responsePlan = null,
   loading,
   onNavigateToResponse,
   onUpdateStatus,
@@ -60,7 +62,6 @@ export function IncidentInvestigation({
     operational_impact,
     risk,
     evidence_graph,
-    response_plan,
   } = incident;
 
   const handleStatusChange = async (newStatus: IncidentStatus) => {
