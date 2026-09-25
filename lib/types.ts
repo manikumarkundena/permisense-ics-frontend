@@ -214,22 +214,7 @@ export interface IncidentDetail extends IncidentSummary {
       target?: string;
     }>;
   };
-  response_plan?: {
-    recommended_action: string;
-    description: string;
-    register: string;
-    register_name: string;
-    current_value: number;
-    target_value: number;
-    unit: string;
-    verification_register: string;
-    verification_threshold: string;
-    approval_state: string;
-    execution_state: string;
-    recovery_state: string;
-    approved_by?: string;
-    executed_at?: string;
-  } | null;
+  response_plan?: ResponsePlan | null;
   [key: string]: unknown;
 }
 
