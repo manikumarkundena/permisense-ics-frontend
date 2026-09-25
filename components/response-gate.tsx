@@ -276,7 +276,7 @@ export function ResponseGate({
                 <span>Expected: {verificationResult.target_value}</span>
                 <span>Actual: <strong className="text-slate-900">{verificationResult.control_value}</strong></span>
                 <span className={(Math.abs((verificationResult.control_value ?? 0) - (verificationResult.target_value ?? 0)) <= 0.000001) ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
-                  {verificationResult.control_readback.match ? 'MATCH' : 'MISMATCH'}
+                  {Math.abs((verificationResult.control_value ?? 0) - (verificationResult.target_value ?? 0)) <= 0.000001 ? 'MATCH' : 'MISMATCH'}
                 </span>
               </div>
             </div>
@@ -287,7 +287,7 @@ export function ResponseGate({
                 <span>Safe Bound: {verificationResult.verification_threshold ?? 'Backend-defined criterion'}</span>
                 <span>Measured: <strong className="text-slate-900">{verificationResult.process_value ?? 'N/A'} {''}</strong></span>
                 <span className={verificationResult.recovered ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
-                  {verificationResult.process_telemetry.within_bounds ? 'IN BOUNDS' : 'OUT OF BOUNDS'}
+                  {verificationResult.recovered ? 'RECOVERY VERIFIED' : 'OUT OF BOUNDS'}
                 </span>
               </div>
             </div>
