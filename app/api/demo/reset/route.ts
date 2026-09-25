@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic';
 export async function POST() {
   return NextResponse.json(
     {
-      error: 'Unsupported backend capability',
-      detail: 'The frontend no longer resets a local virtual cell. Reset must be driven by the authoritative industrial lab/backend.',
+      error: 'Reset is not exposed by the authoritative backend API.',
+      detail: 'Use the virtual PLC/industrial lab baseline controls directly; the frontend will not fabricate a reset operation.',
     },
     { status: 501 }
   );
