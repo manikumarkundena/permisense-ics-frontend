@@ -57,7 +57,7 @@ export function CommandCenter({
             {systemStatus?.components.plc.status || (demoStatus ? 'ONLINE' : 'CONNECTING...')}
           </div>
           <div className="text-xs font-mono text-slate-500 mt-1">
-            Modbus/TCP Port 502 · 192.168.1.10
+            Modbus/TCP Port 502 · Virtual PLC endpoint
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
             Scans: {demoStatus?.plc.scans_completed?.toLocaleString() || '—'}
@@ -91,7 +91,7 @@ export function CommandCenter({
             {connectionState === 'CONNECTED' ? 'STREAM CONNECTED' : connectionState}
           </div>
           <div className="text-xs font-mono text-slate-500 mt-1">
-            Event Channel: /api/events/stream
+            Event Channel: /ws/events
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
             Latest Sample: {latestEvent ? formatTimestamp(latestEvent.timestamp) : '—'}
@@ -113,7 +113,7 @@ export function CommandCenter({
             </span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
-            {incidents.length > 0 ? `Highest Risk: ${incidents[0].risk_score}/100` : 'Zero active breaches'}
+            {incidents.length > 0 ? `Highest Risk: ${incidents[0].risk_score ?? (typeof incidents[0].risk?.score === 'number' ? incidents[0].risk.score : '—')}/100` : 'Zero active breaches'}
           </div>
         </div>
       </div>
@@ -187,7 +187,7 @@ export function CommandCenter({
 
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-slate-100 text-slate-500">
                   <div>Asset: <span className="font-semibold text-slate-800">{latestIncident.asset_id}</span></div>
-                  <div>Risk: <span className="font-bold text-red-600">{latestIncident.risk_score} / 100</span></div>
+                  <div>Risk: <span className="font-bold text-red-600">{latestIncident.risk_score ?? (typeof latestIncident.risk?.score === 'number' ? latestIncident.risk.score : '—')} / 100</span></div>
                   <div>Process: <span className="text-slate-800">{latestIncident.process_name}</span></div>
                   <div>Time: <span className="text-slate-800">{formatDate(latestIncident.timestamp)}</span></div>
                 </div>
