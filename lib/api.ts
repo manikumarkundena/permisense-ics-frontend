@@ -198,10 +198,20 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
   const graph = raw.evidence_graph ?? {};
   const processEvents = Array.isArray(raw.process_events) ? raw.process_events : [];
 
-  const processPeak = processEvents.reduce((peak: number | null, event: any) => {
-    const value = Number(event?.value);
-    return Number.isFinite(value) ? Math.max(peak ?? value, value) : peak;
-  }, null);
+  const impactRegister = Number(impact.evidence?.register_address);
+  const relevantProcessEvents = processEvents.filter((event: any) => {
+    const register = Number(event?.register_address);
+    return Number.isFinite(impactRegister)
+      ? register === impactRegister
+      : register === 30001;
+  });
+  const processPeak = (relevantProcessEvents.length ? relevantProcessEvents : processEvents).reduce(
+    (peak: number | null, event: any) => {
+      const value = Number(event?.value);
+      return Number.isFinite(value) ? Math.max(peak ?? value, value) : peak;
+    },
+    null
+  );
 
   const riskScore = Number(riskRaw.score ?? raw.risk_score ?? 0);
   const riskFactors = Array.isArray(riskRaw.factors)
