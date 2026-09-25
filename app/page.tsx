@@ -36,13 +36,20 @@ export default function HomePage() {
   const loadIncidentDetail = useCallback(async (id: string) => {
     setLoadingIncidentDetail(true);
     try {
-      const [detail, responsePlan] = await Promise.all([
-        apiClient.getIncident(id),
-        apiClient.getResponsePlan(id),
-      ]);
+      // Incident evidence is the primary surface. A response-plan failure must
+      // never make the investigation page disappear.
+      const detail = await apiClient.getIncident(id);
       setSelectedIncidentDetail(detail);
-      setSelectedResponsePlan(responsePlan);
-    } catch {
+
+      try {
+        const responsePlan = await apiClient.getResponsePlan(id);
+        setSelectedResponsePlan(responsePlan);
+      } catch (responseError) {
+        console.error('Response plan unavailable:', responseError);
+        setSelectedResponsePlan(null);
+      }
+    } catch (detailError) {
+      console.error('Incident detail unavailable:', detailError);
       setSelectedIncidentDetail(null);
       setSelectedResponsePlan(null);
     } finally {
