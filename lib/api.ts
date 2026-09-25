@@ -170,8 +170,8 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
       })),
     },
     evidence_graph: {
-      nodes: Array.isArray(graph.nodes) ? graph.nodes.map((node: any) => ({
-        id: String(node.id ?? node.type ?? Math.random()),
+      nodes: Array.isArray(graph.nodes) ? graph.nodes.map((node: any, index: number) => ({
+        id: String(node.id ?? node.type ?? `evidence-${index}`),
         type: String(node.type ?? 'EVIDENCE'),
         label: String(node.label ?? node.name ?? ''),
         sublabel: node.sublabel ? String(node.sublabel) : undefined,
