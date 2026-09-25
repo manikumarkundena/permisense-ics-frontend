@@ -247,9 +247,9 @@ export function CommandCenter({
                       <span className={`text-2xl font-mono font-bold ${isDegraded ? 'text-[#D14343]' : 'text-slate-900'}`}>
                         {liveProcess.speed}
                       </span>
-                      <span className="text-xs font-mono text-slate-500">RPM</span>
+                      <span className="text-xs font-mono text-slate-500">%</span>
                     </div>
-                    <span className="text-[11px] font-mono text-slate-400">Setpoint: {demoStatus.controls.speed_setpoint} RPM</span>
+                    <span className="text-[11px] font-mono text-slate-400">Setpoint: {demoStatus.controls.speed_setpoint} %</span>
                   </div>
 
                   <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
@@ -275,7 +275,7 @@ export function CommandCenter({
           </div>
 
           <div className="pt-4 border-t border-slate-200 mt-4 flex items-center justify-between text-xs font-mono text-slate-500">
-            <span>Safety Limit: {demoStatus?.controls.overspeed_limit || 75} RPM</span>
+            <span>Safety Limit: {demoStatus?.controls.overspeed_limit || 75} %</span>
             <span className={isDegraded ? 'text-[#D14343] font-bold' : 'text-[#18875B] font-semibold'}>
               {isDegraded ? 'SAFETY CEILING EXCEEDED' : 'NOMINAL SAFETY ENVELOPE'}
             </span>
