@@ -53,7 +53,10 @@ export function DemoLab({
   };
 
   const activeIncident = incidents[0] || null;
-  const isOverspeed = (demoStatus?.process.speed || 0) > (demoStatus?.controls.overspeed_limit || 75);
+  const isOverspeed =
+    demoStatus && demoStatus.process !== 'unavailable'
+      ? demoStatus.process.speed > demoStatus.controls.overspeed_limit
+      : false;
   const isAttackActive = demoStatus?.scenarios.speed_attack_active || isOverspeed;
 
   // Derive current step in the 10-step journey from ACTUAL backend state:
