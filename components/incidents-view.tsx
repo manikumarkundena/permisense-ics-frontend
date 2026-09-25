@@ -48,7 +48,7 @@ export function IncidentsView({
               CORRELATED CYBER-PHYSICAL INCIDENT QUEUE
             </h2>
             <p className="text-xs text-slate-500 font-sans mt-0.5">
-              Persisted incident evidence derived from Modbus/TCP control anomalies and physical sensor deviations.
+              Persisted incident evidence derived from Modbus/TCP control anomalies and physical sensor deviations. Historical records remain visible for auditability.
             </p>
           </div>
 
@@ -109,7 +109,7 @@ export function IncidentsView({
           <div className="p-12 text-center space-y-3">
             <div className="text-sm font-mono text-slate-500">No correlated incidents</div>
             <p className="text-xs text-slate-400 max-w-md mx-auto font-sans">
-              No active or historical cyber-physical incidents match the selected filter. Trigger a demonstration attack scenario to generate correlated telemetry.
+              No recorded cyber-physical incidents match the selected filter. Trigger a demonstration attack scenario to generate correlated telemetry.
             </p>
             {onTriggerDemo && (
               <button
