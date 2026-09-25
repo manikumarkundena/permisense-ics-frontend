@@ -91,7 +91,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               <Zap className={`w-4 h-4 ${isDegraded ? 'text-[#D14343]' : 'text-amber-500'}`} />
             </div>
             <div className="text-sm font-bold text-slate-900">VFD-01 Inverter</div>
-            <div className="text-xs font-mono text-slate-500">Setpoint: R40003 = {controls.speed_setpoint} RPM</div>
+            <div className="text-xs font-mono text-slate-500">Setpoint: R40003 = {controls.speed_setpoint} %</div>
             <div className="mt-2 text-[11px] font-mono text-slate-700">
               Current: {process.current} A ({process.load}%)
             </div>
@@ -108,7 +108,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               )}
             </div>
             <div className="text-sm font-bold text-slate-900">Conveyor Assembly</div>
-            <div className="text-xs font-mono text-slate-500">Encoder: R30001 = {process.speed} RPM</div>
+            <div className="text-xs font-mono text-slate-500">Encoder: R30001 = {process.speed} %</div>
             <div className="mt-2">
               <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${getStatusBadgeClass(process.state_label)}`}>
                 R30007: {process.state} — {formatProcessState(process.state)}
@@ -131,10 +131,10 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
             <span className={`text-3xl font-mono font-bold tabular-nums ${isOverspeed ? 'text-[#D14343]' : 'text-[#0B1220]'}`}>
               {process.speed}
             </span>
-            <span className="text-xs font-mono text-slate-500">RPM</span>
+            <span className="text-xs font-mono text-slate-500">%</span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500 flex justify-between">
-            <span>Safety Limit: {controls.overspeed_limit} RPM</span>
+            <span>Safety Limit: {controls.overspeed_limit} %</span>
             <span className={isOverspeed ? 'text-[#D14343] font-bold' : 'text-[#18875B]'}>
               {isOverspeed ? 'OVERSPEED' : 'SAFE'}
             </span>
@@ -244,9 +244,9 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40003</td>
                 <td className="py-2.5 px-4 font-sans">Conveyor Speed Setpoint</td>
                 <td className={`py-2.5 px-4 font-bold text-sm ${controls.speed_setpoint > controls.overspeed_limit ? 'text-[#D14343]' : 'text-slate-900'}`}>
-                  {controls.speed_setpoint} RPM
+                  {controls.speed_setpoint} %
                 </td>
-                <td className="py-2.5 px-4 text-slate-500">50 RPM (Ceiling: 75 RPM)</td>
+                <td className="py-2.5 px-4 text-slate-500">50 % (Ceiling: 75 %)</td>
                 <td className={`py-2.5 px-4 font-semibold ${controls.speed_setpoint > controls.overspeed_limit ? 'text-[#D14343]' : 'text-[#18875B]'}`}>
                   {controls.speed_setpoint > controls.overspeed_limit ? 'UNAUTHORIZED OVERRIDE' : 'NOMINAL'}
                 </td>
@@ -254,15 +254,15 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               <tr className="hover:bg-slate-50/50">
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40004</td>
                 <td className="py-2.5 px-4 font-sans">Acceleration Rate Limit</td>
-                <td className="py-2.5 px-4 font-bold">{controls.acceleration_limit} RPM/s</td>
-                <td className="py-2.5 px-4 text-slate-500">15 RPM/s</td>
+                <td className="py-2.5 px-4 font-bold">{controls.acceleration_limit} %/s</td>
+                <td className="py-2.5 px-4 text-slate-500">15 %/s</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">NOMINAL</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40010</td>
                 <td className="py-2.5 px-4 font-sans">Critical Overspeed Limit</td>
-                <td className="py-2.5 px-4 font-bold">{controls.overspeed_limit} RPM</td>
-                <td className="py-2.5 px-4 text-slate-500">75 RPM</td>
+                <td className="py-2.5 px-4 font-bold">{controls.overspeed_limit} %</td>
+                <td className="py-2.5 px-4 text-slate-500">75 %</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">INTERLOCK ACTIVE</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
