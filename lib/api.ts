@@ -192,17 +192,51 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
     },
     process_name: String(raw.process_id ?? 'Industrial Process'),
     control_change: {
-      register: String(control.register_address ?? control.register ?? 'UNKNOWN'),
-      register_name: String(control.register_name ?? 'Control Register'),
+      register: control.register_address != null ? 'R' + control.register_address : 'UNKNOWN',
+      register_name: String(
+        control.register_name ??
+          ({
+            40001: 'Motor enable',
+            40002: 'Operating mode',
+            40003: 'Speed setpoint',
+            40004: 'Acceleration limit',
+            40005: 'Production target',
+            40010: 'Overspeed limit',
+            40011: 'High-load limit',
+            40012: 'Jam timeout',
+            40013: 'Configuration version',
+          } as Record<number, string>)[Number(control.register_address)] ??
+          'Control register'
+      ),
       previous_value: Number(control.previous_value ?? 0),
       new_value: Number(control.new_value ?? 0),
-      unit: String(control.unit ?? ''),
+      unit: String(
+        control.unit ??
+          ({
+            40003: 'RPM',
+            40004: 'RPM/s',
+            40005: 'units',
+            40010: 'RPM',
+            40011: '%',
+            40012: 's',
+          } as Record<number, string>)[Number(control.register_address)] ??
+          ''
+      ),
     },
     process_deviation: {
-      register: String(impact.register ?? processEvents[0]?.register_address ?? 'R30001'),
-      physical_sensor: String(impact.physical_sensor ?? 'Process telemetry'),
-      peak_observed: Number(impact.observed_value ?? processPeak ?? 0),
-      unit: String(impact.unit ?? 'value'),
+      register: impact.evidence?.register_address != null
+        ? 'R' + impact.evidence.register_address
+        : processEvents[0]?.register_address != null
+        ? 'R' + processEvents[0].register_address
+        : 'UNKNOWN',
+      physical_sensor: String(impact.title ?? 'Process telemetry'),
+      peak_observed: Number(
+        impact.evidence?.value ??
+          impact.observed_value ??
+          processPeak ??
+          0
+      ),
+      unit: String(impact.evidence?.unit ?? impact.unit ?? 'value'),
     },
     detection: {
       rule_id: String(firstDetection.rule_id ?? firstDetection.detection_id ?? 'CORRELATION'),
@@ -210,8 +244,18 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
       confidence: String(firstDetection.confidence ?? 'CORRELATED'),
     },
     correlation: {
-      time_delta_ms: Number(raw.correlation?.time_delta_ms ?? 0),
-      causality_score: Number(raw.correlation?.causality_score ?? 0),
+      time_delta_ms:
+        raw.correlation?.time_delta_ms == null
+          ? null
+          : Number(raw.correlation.time_delta_ms),
+      causality_score:
+        raw.correlation?.causality_score == null
+          ? null
+          : Number(raw.correlation.causality_score),
+      window_seconds:
+        raw.window_seconds == null
+          ? (Number(raw.evidence?.window_seconds) || null)
+          : Number(raw.window_seconds),
     },
     mitre_attack: mitre.map((item: any) => ({
       technique_id: String(item.technique_id ?? item.id ?? 'UNKNOWN'),
@@ -220,11 +264,26 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
       description: String(item.description ?? ''),
     })),
     operational_impact: {
-      physical_process_state: String(impact.physical_process_state ?? impact.state ?? 'PROCESS DEVIATION'),
-      safe_limit: Number(impact.safe_limit ?? 0),
-      observed_value: Number(impact.observed_value ?? processPeak ?? 0),
-      unit: String(impact.unit ?? 'value'),
-      summary: String(impact.summary ?? raw.reason ?? 'Correlated cyber-physical process deviation.'),
+      physical_process_state: String(
+        impact.title ??
+          impact.impact_type ??
+          impact.physical_process_state ??
+          'PROCESS DEVIATION'
+      ),
+      safe_limit: Number(impact.evidence?.threshold ?? impact.safe_limit ?? 0),
+      observed_value: Number(
+        impact.evidence?.value ??
+          impact.observed_value ??
+          processPeak ??
+          0
+      ),
+      unit: String(impact.evidence?.unit ?? impact.unit ?? 'value'),
+      summary: String(
+        impact.description ??
+          impact.summary ??
+          raw.reason ??
+          'Correlated cyber-physical process deviation.'
+      ),
     },
     risk: {
       score: Number.isFinite(riskScore) ? riskScore : 0,
@@ -246,7 +305,7 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
         status: node.status ? String(node.status) : undefined,
       })) : [],
       edges: Array.isArray(graph.edges) ? graph.edges.map((edge: any) => ({
-        label: edge.label ? String(edge.label) : undefined,
+        label: edge.label ? String(edge.label) : edge.relation ? String(edge.relation) : undefined,
         source: edge.source ? String(edge.source) : undefined,
         target: edge.target ? String(edge.target) : undefined,
       })) : [],
