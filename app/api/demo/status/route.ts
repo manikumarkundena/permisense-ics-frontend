@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 function stateLabel(state: number) {
-  return ({ 0: 'STOPPED', 1: 'RUNNING', 2: 'IDLE', 3: 'FAULT' } as Record<number, string>)[state] || `STATE_${state}`;
+  return ({ 0: 'STOPPED', 1: 'STARTING', 2: 'RUNNING', 3: 'DEGRADED', 4: 'JAMMED', 5: 'FAULT' } as Record<number, string>)[state] || `STATE_${state}`;
 }
 
 export async function GET() {
