@@ -2,19 +2,15 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 export async function GET() {
-  if (!API_URL) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
 
-  const [health, system] = await Promise.all([
-    fetch(`${API_URL.replace(/\/$/, '')}/api/health`, { cache: 'no-store' }),
-    fetch(`${API_URL.replace(/\/$/, '')}/api/system/status`, { cache: 'no-store' }),
-  ]);
+  const response = await fetch(`${base}/api/demo/status`, { cache: 'no-store' });
+  const text = await response.text();
 
-  return NextResponse.json({
-    source: 'real-backend',
-    health: await health.json(),
-    system: await system.json(),
-  }, { status: health.ok && system.ok ? 200 : 502 });
+  return new NextResponse(text, {
+    status: response.status,
+    headers: { 'Content-Type': response.headers.get('content-type') || 'application/json' },
+  });
 }
