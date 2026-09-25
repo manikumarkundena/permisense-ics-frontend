@@ -35,6 +35,9 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
       </div>
     );
   }
+  const formatMetric = (value: number | undefined, digits = 1) =>
+    Number.isFinite(value) ? Number(value).toFixed(digits).replace(/\\.0+$/, '') : '—';
+
   const isOverspeed = process.speed > controls.overspeed_limit;
   const isDegraded = process.state === 3 || isOverspeed;
 
@@ -78,9 +81,9 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               <Activity className="w-4 h-4 text-slate-500" />
             </div>
             <div className="text-sm font-bold text-slate-900">{plc.protocol}</div>
-            <div className="text-xs text-slate-500">Port 502 / Passive Gateway DPI</div>
+            <div className="text-xs text-slate-500">Port 5020 / Passive Gateway DPI</div>
             <div className="mt-2 text-[11px] font-mono text-slate-600">
-              Holding Regs: R40001–R40006, R40010–R40013
+              Holding Regs: R40001–R40005, R40010–R40013
             </div>
           </div>
 
@@ -91,9 +94,9 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               <Zap className={`w-4 h-4 ${isDegraded ? 'text-[#D14343]' : 'text-amber-500'}`} />
             </div>
             <div className="text-sm font-bold text-slate-900">VFD-01 Inverter</div>
-            <div className="text-xs font-mono text-slate-500">Setpoint: R40003 = {controls.speed_setpoint} %</div>
+            <div className="text-xs font-mono text-slate-500">Setpoint: R40003 = {formatMetric(controls.speed_setpoint)} %</div>
             <div className="mt-2 text-[11px] font-mono text-slate-700">
-              Current: {process.current} A ({process.load}%)
+              Current: {formatMetric(process.current)} A ({formatMetric(process.load)}%)
             </div>
           </div>
 
@@ -108,7 +111,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
               )}
             </div>
             <div className="text-sm font-bold text-slate-900">Conveyor Assembly</div>
-            <div className="text-xs font-mono text-slate-500">Encoder: R30001 = {process.speed} %</div>
+            <div className="text-xs font-mono text-slate-500">Encoder: R30001 = {formatMetric(process.speed)} %</div>
             <div className="mt-2">
               <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${getStatusBadgeClass(process.state_label)}`}>
                 R30007: {process.state} — {formatProcessState(process.state)}
@@ -129,7 +132,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="text-xs text-slate-600 font-medium">Actual Speed (Shaft Encoder)</div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className={`text-3xl font-mono font-bold tabular-nums ${isOverspeed ? 'text-[#D14343]' : 'text-[#0B1220]'}`}>
-              {process.speed}
+              {formatMetric(process.speed)}
             </span>
             <span className="text-xs font-mono text-slate-500">%</span>
           </div>
@@ -150,7 +153,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="text-xs text-slate-600 font-medium">Motor Current Feedback</div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-mono font-bold tabular-nums text-[#0B1220]">
-              {process.current}
+              {formatMetric(process.current)}
             </span>
             <span className="text-xs font-mono text-slate-500">A</span>
           </div>
@@ -168,12 +171,12 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="text-xs text-slate-600 font-medium">Drive Mechanical Load</div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-mono font-bold tabular-nums text-[#0B1220]">
-              {process.load}
+              {formatMetric(process.load)}
             </span>
             <span className="text-xs font-mono text-slate-500">%</span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
-            Ceiling Threshold: {controls.high_load_limit}%
+            Ceiling Threshold: {formatMetric(controls.high_load_limit)}%
           </div>
         </div>
 
@@ -186,12 +189,12 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="text-xs text-slate-600 font-medium">Conveyor Belt Linear Position</div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-mono font-bold tabular-nums text-[#0B1220]">
-              {process.position}
+              {formatMetric(process.position)}
             </span>
             <span className="text-xs font-mono text-slate-500">mm / 1000</span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
-            Workpieces (R30005): {process.workpieces.toLocaleString()} units
+            Workpieces (R30005): {Number.isFinite(process.workpieces) ? process.workpieces.toLocaleString() : '—'} units
           </div>
         </div>
       </div>
@@ -202,7 +205,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-slate-600" />
             <h3 className="text-sm font-semibold text-slate-900">
-              Modbus/TCP Holding Registers (Read/Write Controls · R40001–R40006, R40010–R40013)
+              Modbus/TCP Holding Registers (Read/Write Controls · R40001–R40005, R40010–R40013)
             </h3>
           </div>
           <span className="text-xs font-mono text-slate-500">
