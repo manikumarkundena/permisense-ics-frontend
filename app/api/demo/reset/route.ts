@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
-import { virtualCell } from '@/lib/backend/virtual-cell';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST() {
-  const state = virtualCell.resetDemo();
-  return NextResponse.json({
-    success: true,
-    message: 'Virtual industrial cell reset to safe nominal baseline.',
-    state,
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
+
+  const response = await fetch(`${base}/api/demo/reset`, {
+    method: 'POST',
+    cache: 'no-store',
+  });
+  const text = await response.text();
+  return new NextResponse(text, {
+    status: response.status,
+    headers: { 'Content-Type': response.headers.get('content-type') || 'application/json' },
   });
 }
