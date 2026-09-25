@@ -122,7 +122,7 @@ export function LandingView({
               { label: 'BEHAVIOR', sub: 'Unsigned FC06' },
               { label: 'THREAT', sub: 'MITRE T0831' },
               { label: 'PROCESS', sub: 'Drive Motor' },
-              { label: 'IMPACT', sub: '90 RPM Overspeed' },
+              { label: 'IMPACT', sub: '90 % Overspeed' },
               { label: 'ACTION', sub: 'Setpoint Restore' },
             ].map((node) => (
               <div key={node.label} className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col justify-center">
@@ -300,7 +300,7 @@ export function LandingView({
             Allowlisted Response Gate with Mandatory Human Authorization
           </h2>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-sans">
-            When an overspeed attack manipulates setpoint R40003 from 50 to 90 RPM, the response engine prepares a targeted remediation plan: restore R40003 to 50 RPM. The command cannot fire until an authorized operator clicks Approve.
+            When an overspeed attack manipulates setpoint R40003 from 50 to 90 %, the response engine prepares a targeted remediation plan: restore R40003 to 50 %. The command cannot fire until an authorized operator clicks Approve.
           </p>
 
           <div className="max-w-md mx-auto bg-white border border-emerald-200 rounded-xl p-6 shadow-sm text-left space-y-4">
@@ -316,9 +316,9 @@ export function LandingView({
             </div>
 
             <div className="flex items-center justify-between font-mono text-sm p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-red-600 font-bold">90 RPM</span>
+              <span className="text-red-600 font-bold">90 %</span>
               <ArrowRight className="w-4 h-4 text-slate-400" />
-              <span className="text-[#18875B] font-bold">50 RPM</span>
+              <span className="text-[#18875B] font-bold">50 %</span>
             </div>
 
             <button
@@ -351,15 +351,15 @@ export function LandingView({
               <span className="text-[11px] font-mono text-slate-400 block mb-1">01. INJECTION</span>
               <div className="text-xs font-bold text-slate-900 font-mono">Modbus FC06 Write</div>
               <p className="text-[11px] text-slate-600 mt-1">
-                Adversary sends packet setting R40003 to 90 RPM without change ticket.
+                Adversary sends packet setting R40003 to 90 % without change ticket.
               </p>
             </div>
 
             <div className="bg-white border border-red-200 rounded-xl p-4 shadow-xs">
               <span className="text-[11px] font-mono text-red-600 block mb-1">02. DEVIATION</span>
-              <div className="text-xs font-bold text-red-900 font-mono">Actual Speed 90 RPM</div>
+              <div className="text-xs font-bold text-red-900 font-mono">Actual Speed 90 %</div>
               <p className="text-[11px] text-slate-600 mt-1">
-                Shaft encoder R30001 exceeds 75 RPM ceiling. Risk calculated at 84/100.
+                Shaft encoder R30001 exceeds 75 % ceiling. Risk calculated at 84/100.
               </p>
             </div>
 
@@ -367,7 +367,7 @@ export function LandingView({
               <span className="text-[11px] font-mono text-[#18875B] block mb-1">03. REMEDIATION</span>
               <div className="text-xs font-bold text-slate-900 font-mono">Readback Recovery</div>
               <p className="text-[11px] text-slate-600 mt-1">
-                Human authorizes setpoint restore; sensor confirms speed settles to 50 RPM.
+                Human authorizes setpoint restore; sensor confirms speed settles to 50 %.
               </p>
             </div>
           </div>
