@@ -87,7 +87,10 @@ export default function HomePage() {
     }
   };
 
-  const isAlert = demoStatus ? demoStatus.process.speed > demoStatus.controls.overspeed_limit : false;
+  const isAlert =
+    demoStatus && demoStatus.process !== 'unavailable'
+      ? demoStatus.process.speed > demoStatus.controls.overspeed_limit
+      : false;
   const backendError = systemError || demoError;
 
   return (
