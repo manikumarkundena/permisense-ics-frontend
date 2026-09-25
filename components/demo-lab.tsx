@@ -245,7 +245,7 @@ export function DemoLab({
                 ACTIVE CORRELATED INCIDENT: {activeIncident.incident_id}
               </div>
               <div className="text-xs text-red-800 font-sans mt-0.5">
-                {activeIncident.title} · Status: <span className="font-bold">{activeIncident.status}</span> · Risk: <span className="font-bold">{activeIncident.risk_score}/100</span>
+                {activeIncident.title} · Status: <span className="font-bold">{activeIncident.status}</span> · Risk: <span className="font-bold">{activeIncident.risk_score ?? (typeof activeIncident.risk?.score === 'number' ? activeIncident.risk.score : '—')}/100</span>
               </div>
             </div>
           </div>
