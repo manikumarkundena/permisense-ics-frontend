@@ -213,10 +213,10 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
       unit: String(
         control.unit ??
           ({
-            40003: 'RPM',
-            40004: 'RPM/s',
-            40005: 'units',
-            40010: 'RPM',
+            40003: '%',
+            40004: '%/s',
+            40005: 'parts/min',
+            40010: '%',
             40011: '%',
             40012: 's',
           } as Record<number, string>)[Number(control.register_address)] ??
