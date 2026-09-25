@@ -31,7 +31,7 @@ export function IncidentsView({
         inc.incident_id.toLowerCase().includes(q) ||
         inc.title.toLowerCase().includes(q) ||
         inc.asset_id.toLowerCase().includes(q) ||
-        inc.process_name.toLowerCase().includes(q)
+        (inc.process_name ?? '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -134,16 +134,16 @@ export function IncidentsView({
                       {inc.incident_id}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${getSeverityBadgeClass(
-                        inc.severity
-                      )}`}
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${
+                        getSeverityBadgeClass(inc.severity)
+                      }`}
                     >
                       {inc.severity}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${getStatusBadgeClass(
-                        inc.status
-                      )}`}
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${
+                        getStatusBadgeClass(inc.status)
+                      }`}
                     >
                       {inc.status}
                     </span>
