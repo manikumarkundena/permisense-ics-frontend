@@ -120,10 +120,14 @@ export interface ResponsePlan {
 export interface RecoveryVerificationResult {
   incident_id?: string;
   recovered: boolean;
+  control_register?: number;
   control_value?: number;
   target_value?: number;
-  process_register?: number;
+  process_register?: number | null;
   process_value?: number | null;
+  verification_type?: string;
+  verification_threshold?: string;
+  verified_at?: string;
   status?: string;
   [key: string]: unknown;
 }
