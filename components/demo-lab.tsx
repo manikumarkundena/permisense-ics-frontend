@@ -52,7 +52,10 @@ export function DemoLab({
     }
   };
 
-  const activeIncident = incidents[0] || null;
+  const latestIncident = incidents[0] || null;
+  const activeIncident = incidents.find((incident) =>
+    incident.status === 'OPEN' || incident.status === 'INVESTIGATING' || incident.status === 'CONTAINED'
+  ) || null;
   const isOverspeed =
     demoStatus && demoStatus.process !== 'unavailable'
       ? demoStatus.process.speed > demoStatus.controls.overspeed_limit
@@ -64,7 +67,8 @@ export function DemoLab({
     if (!demoStatus) return 0;
     if (!isAttackActive && incidents.length === 0) return 0; // nominal baseline
 
-    // If incident exists:
+    // Prefer the currently active incident; otherwise preserve a completed
+    // demo journey when the most recent recorded incident is already recovered.
     if (activeIncident) {
       if (activeIncident.status === 'RECOVERED' || activeIncident.status === 'CLOSED') {
         return 10; // 10 RECOVER
@@ -78,6 +82,10 @@ export function DemoLab({
 
     if (isAttackActive) {
       return 5; // IMPACT
+    }
+
+    if (latestIncident?.status === 'RECOVERED' || latestIncident?.status === 'CLOSED') {
+      return 10;
     }
 
     return 0;
