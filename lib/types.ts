@@ -112,6 +112,91 @@ export interface IncidentSummary {
 }
 
 export interface IncidentDetail extends IncidentSummary {
+  asset: {
+    id: string;
+    name: string;
+    zone: string;
+  };
+  process: {
+    id: string;
+    name: string;
+  };
+  control_change: {
+    register: string;
+    register_name: string;
+    previous_value: number;
+    new_value: number;
+    unit: string;
+  };
+  process_deviation: {
+    register: string;
+    physical_sensor: string;
+    peak_observed: number;
+    unit: string;
+  };
+  detection: {
+    rule_id: string;
+    detector: string;
+    confidence: string;
+  };
+  correlation: {
+    time_delta_ms: number;
+    causality_score: number;
+  };
+  mitre_attack: Array<{
+    technique_id: string;
+    tactic: string;
+    technique_name: string;
+    description: string;
+  }>;
+  operational_impact: {
+    physical_process_state: string;
+    safe_limit: number;
+    observed_value: number;
+    unit: string;
+    summary: string;
+  };
+  risk: {
+    score: number;
+    level: string;
+    calculation_timestamp: string;
+    factors: Array<{
+      name: string;
+      contributed: number;
+      weight: number;
+      reason: string;
+    }>;
+  };
+  evidence_graph: {
+    nodes: Array<{
+      id: string;
+      type: string;
+      label: string;
+      sublabel?: string;
+      status?: string;
+    }>;
+    edges: Array<{
+      label?: string;
+      source?: string;
+      target?: string;
+    }>;
+  };
+  response_plan?: {
+    recommended_action: string;
+    description: string;
+    register: string;
+    register_name: string;
+    current_value: number;
+    target_value: number;
+    unit: string;
+    verification_register: string;
+    verification_threshold: string;
+    approval_state: string;
+    execution_state: string;
+    recovery_state: string;
+    approved_by?: string;
+    executed_at?: string;
+  } | null;
   [key: string]: unknown;
 }
 
