@@ -82,12 +82,9 @@ export const apiClient = {
   getHealth: () => request<HealthResponse>('/api/health'),
   getSystemStatus: () => request<SystemStatusResponse>('/api/system/status'),
 
-  getTelemetryEvents: async (limit = 50) => {
-    const payload = await request<TelemetryEvent[] | { events?: TelemetryEvent[] }>(
-      `/api/telemetry/events?limit=${limit}`
-    );
-    return unwrapList(payload);
-  },
+  // Telemetry history is not exposed by the authoritative backend.
+  // Live telemetry arrives through /ws/events instead.
+  getTelemetryEvents: async (_limit = 50) => [],
 
   getIncidents: async () => {
     const payload = await request<IncidentSummary[] | { incidents?: IncidentSummary[] }>(
