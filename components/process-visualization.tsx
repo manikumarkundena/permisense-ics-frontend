@@ -28,6 +28,13 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
   }
 
   const { process, controls, plc } = demoStatus;
+  if (process === 'unavailable' || !controls) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-12 text-center text-slate-500 font-mono text-sm">
+        Virtual PLC connected, but process registers are currently unavailable.
+      </div>
+    );
+  }
   const isOverspeed = process.speed > controls.overspeed_limit;
   const isDegraded = process.state === 3 || isOverspeed;
 
@@ -43,7 +50,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
             </h2>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
-            <span>Cycle: {plc.cycle_time_ms}ms</span>
+            <span>Cycle: {plc.cycle_time_ms ?? '—'}ms</span>
             <span>·</span>
             <span>Scans: {plc.scans_completed.toLocaleString()}</span>
           </div>
