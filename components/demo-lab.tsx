@@ -42,7 +42,7 @@ export function DemoLab({
     try {
       const res = await apiClient.resetDemo();
       setStatusMsg(
-        `Real Modbus/TCP baseline restore executed: R40002 → 1 (RUN/Auto), R40003 → 50 RPM. ${res.description ?? 'Virtual PLC baseline restored.'}`
+        `Real Modbus/TCP baseline restore executed: R40002 → 1 (RUN/Auto), R40003 → 50 %. ${res.description ?? 'Virtual PLC baseline restored.'}`
       );
       onRefresh();
     } catch (err: unknown) {
@@ -120,7 +120,7 @@ export function DemoLab({
     { num: '02', title: 'OBSERVE', desc: 'Gateway DPI frame capture' },
     { num: '03', title: 'DETECT', desc: 'Deterministic rule engine' },
     { num: '04', title: 'CORRELATE', desc: 'Control write ↔ Telemetry' },
-    { num: '05', title: 'IMPACT', desc: 'Process deviation (90 RPM)' },
+    { num: '05', title: 'IMPACT', desc: 'Process deviation (90 %)' },
     { num: '06', title: 'RISK', desc: 'Backend operational risk' },
     { num: '07', title: 'EVIDENCE', desc: 'Explainable graph & MITRE' },
     { num: '08', title: 'DECIDE', desc: 'Human operator approval' },
@@ -157,7 +157,7 @@ export function DemoLab({
               className="px-4 py-2.5 rounded-lg bg-[#D14343] hover:bg-red-700 text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              {triggeringScenario === 'speed' ? 'SENDING MODBUS WRITE...' : 'TRIGGER OVERSPEED ATTACK (90 RPM)'}
+              {triggeringScenario === 'speed' ? 'SENDING MODBUS WRITE...' : 'TRIGGER OVERSPEED ATTACK (90 %)'}
             </button>
 
             <button
