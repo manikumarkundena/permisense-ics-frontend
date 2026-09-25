@@ -177,8 +177,9 @@ export interface IncidentDetail extends IncidentSummary {
     confidence: string;
   };
   correlation: {
-    time_delta_ms: number;
-    causality_score: number;
+    time_delta_ms: number | null;
+    causality_score: number | null;
+    window_seconds?: number | null;
   };
   mitre_attack: Array<{
     technique_id: string;
