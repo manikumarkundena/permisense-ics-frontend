@@ -265,28 +265,28 @@ export function ResponseGate({
               </h4>
             </div>
             <span className="text-xs font-mono text-slate-500">
-              Verified at: {formatDate(verificationResult.verified_at)}
+              Verified at: {verificationResult.verified_at ? formatDate(verificationResult.verified_at) : 'Backend timestamp unavailable'}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono mb-4">
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <div className="text-slate-500 mb-1">CONTROL REGISTER READBACK ({verificationResult.control_readback.register})</div>
+              <div className="text-slate-500 mb-1">CONTROL REGISTER READBACK ({(verificationResult.control_register ? 'R' + verificationResult.control_register : 'approved target register')})</div>
               <div className="flex items-center justify-between">
-                <span>Expected: {verificationResult.control_readback.expected}</span>
-                <span>Actual: <strong className="text-slate-900">{verificationResult.control_readback.actual}</strong></span>
-                <span className={verificationResult.control_readback.match ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
+                <span>Expected: {verificationResult.target_value}</span>
+                <span>Actual: <strong className="text-slate-900">{verificationResult.control_value}</strong></span>
+                <span className={(Math.abs((verificationResult.control_value ?? 0) - (verificationResult.target_value ?? 0)) <= 0.000001) ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
                   {verificationResult.control_readback.match ? 'MATCH' : 'MISMATCH'}
                 </span>
               </div>
             </div>
 
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <div className="text-slate-500 mb-1">PROCESS FEEDBACK ({verificationResult.process_telemetry.register_name})</div>
+              <div className="text-slate-500 mb-1">PROCESS FEEDBACK ({(verificationResult.process_register != null ? 'R' + verificationResult.process_register : 'N/A')})</div>
               <div className="flex items-center justify-between">
-                <span>Safe Bound: {verificationResult.process_telemetry.safe_bound}</span>
-                <span>Measured: <strong className="text-slate-900">{verificationResult.process_telemetry.measured_value} {verificationResult.process_telemetry.unit}</strong></span>
-                <span className={verificationResult.process_telemetry.within_bounds ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
+                <span>Safe Bound: {verificationResult.verification_threshold ?? 'Backend-defined criterion'}</span>
+                <span>Measured: <strong className="text-slate-900">{verificationResult.process_value ?? 'N/A'} {''}</strong></span>
+                <span className={verificationResult.recovered ? 'text-[#18875B] font-bold' : 'text-red-600 font-bold'}>
                   {verificationResult.process_telemetry.within_bounds ? 'IN BOUNDS' : 'OUT OF BOUNDS'}
                 </span>
               </div>
@@ -294,7 +294,7 @@ export function ResponseGate({
           </div>
 
           <div className="p-3 bg-slate-50 rounded-lg text-xs text-slate-700 leading-relaxed font-sans">
-            {verificationResult.message}
+            {(verificationResult.recovered ? 'Recovery verified by backend control readback and process verification.' : 'Recovery not yet verified. Backend reports the process remains outside the recovery criterion.')}
           </div>
         </div>
       )}
