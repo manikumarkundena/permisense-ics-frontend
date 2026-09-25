@@ -40,7 +40,8 @@ export function CommandCenter({
   const latestIncident = incidents[0] || null;
   const latestEvent = latestEvents[0] || null;
   const isHealthy = systemStatus?.status === 'HEALTHY';
-  const isDegraded = demoStatus ? demoStatus.process.speed > demoStatus.controls.overspeed_limit : false;
+  const liveProcess = demoStatus && demoStatus.process !== 'unavailable' ? demoStatus.process : null;
+  const isDegraded = liveProcess ? liveProcess.speed > demoStatus.controls.overspeed_limit : false;
 
   return (
     <div className="space-y-6">
@@ -237,14 +238,14 @@ export function CommandCenter({
               </button>
             </div>
 
-            {demoStatus ? (
+            {liveProcess ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
                     <span className="text-xs font-mono text-slate-500 block mb-1">R30001 ACTUAL SPEED</span>
                     <div className="flex items-baseline gap-1.5">
                       <span className={`text-2xl font-mono font-bold ${isDegraded ? 'text-[#D14343]' : 'text-slate-900'}`}>
-                        {demoStatus.process.speed}
+                        {liveProcess.speed}
                       </span>
                       <span className="text-xs font-mono text-slate-500">RPM</span>
                     </div>
@@ -254,16 +255,16 @@ export function CommandCenter({
                   <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
                     <span className="text-xs font-mono text-slate-500 block mb-1">PROCESS STATE (R30007)</span>
                     <div className="text-base font-bold font-mono text-slate-900 mt-1">
-                      {demoStatus.process.state_label}
+                      {liveProcess.state_label}
                     </div>
-                    <span className="text-[11px] font-mono text-slate-400">Code: {demoStatus.process.state}</span>
+                    <span className="text-[11px] font-mono text-slate-400">Code: {liveProcess.state}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-xs font-mono text-slate-600 pt-2 border-t border-slate-100">
-                  <div>Current: <strong className="text-slate-900">{demoStatus.process.current} A</strong></div>
-                  <div>Load: <strong className="text-slate-900">{demoStatus.process.load}%</strong></div>
-                  <div>Parts: <strong className="text-slate-900">{demoStatus.process.workpieces}</strong></div>
+                  <div>Current: <strong className="text-slate-900">{liveProcess.current} A</strong></div>
+                  <div>Load: <strong className="text-slate-900">{liveProcess.load}%</strong></div>
+                  <div>Parts: <strong className="text-slate-900">{liveProcess.workpieces}</strong></div>
                 </div>
               </div>
             ) : (
