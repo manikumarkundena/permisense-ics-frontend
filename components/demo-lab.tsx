@@ -6,7 +6,6 @@ import { apiClient, ApiError } from '@/lib/api';
 import { ProcessVisualization } from './process-visualization';
 import {
   Play,
-  RotateCcw,
   CheckCircle,
   AlertTriangle,
   ArrowRight,
@@ -72,7 +71,7 @@ export function DemoLab({
     setErrorMsg(null);
     try {
       const res = await apiClient.triggerSpeedScenario();
-      setStatusMsg(`Scenario Executed: Modbus FC06 write to R40003 (90 RPM). Incident ${res.incident_id} created.`);
+      setStatusMsg(`Real Modbus/TCP write executed: R40003 → ${res.result?.value ?? 90}. The backend will correlate telemetry into an incident.`);
       onRefresh();
     } catch (err: unknown) {
       setErrorMsg((err as Error).message);
@@ -87,22 +86,7 @@ export function DemoLab({
     setErrorMsg(null);
     try {
       const res = await apiClient.triggerModeScenario();
-      setStatusMsg(`Scenario Executed: Modbus FC06 write to R40002 (Mode 3: Manual). Incident ${res.incident_id} created.`);
-      onRefresh();
-    } catch (err: unknown) {
-      setErrorMsg((err as Error).message);
-    } finally {
-      setTriggeringScenario(null);
-    }
-  };
-
-  const handleReset = async () => {
-    setTriggeringScenario('reset');
-    setStatusMsg(null);
-    setErrorMsg(null);
-    try {
-      await apiClient.resetDemo();
-      setStatusMsg('Virtual Cell reset to safe nominal baseline (50 RPM, Auto Mode, All Incidents Cleared).');
+      setStatusMsg(`Real Modbus/TCP write executed: R40002 → ${res.result?.value ?? 0}. The backend will correlate telemetry into an incident.`);
       onRefresh();
     } catch (err: unknown) {
       setErrorMsg((err as Error).message);
@@ -165,14 +149,7 @@ export function DemoLab({
               Trigger Mode Override
             </button>
 
-            <button
-              onClick={handleReset}
-              disabled={!!triggeringScenario}
-              className="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 transition-colors border border-slate-700 disabled:opacity-50"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Reset Cell
-            </button>
+
           </div>
         </div>
 
