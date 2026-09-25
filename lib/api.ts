@@ -55,7 +55,13 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       let detailMsg = `HTTP Error ${res.status}`;
       try {
         const errorJson = await res.json();
-        detailMsg = errorJson.detail || errorJson.message || errorJson.error || JSON.stringify(errorJson);
+        const rawDetail = errorJson?.detail ?? errorJson?.message ?? errorJson?.error;
+        detailMsg =
+          typeof rawDetail === 'string'
+            ? rawDetail
+            : rawDetail != null
+            ? JSON.stringify(rawDetail)
+            : JSON.stringify(errorJson);
       } catch {
         const text = await res.text();
         if (text) detailMsg = text;
