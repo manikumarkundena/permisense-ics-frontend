@@ -80,7 +80,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
             <div className="text-sm font-bold text-slate-900">{plc.protocol}</div>
             <div className="text-xs text-slate-500">Port 502 / Passive Gateway DPI</div>
             <div className="mt-2 text-[11px] font-mono text-slate-600">
-              Holding Regs: R40001–R40009
+              Holding Regs: R40001–R40006, R40010–R40013
             </div>
           </div>
 
@@ -202,7 +202,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-slate-600" />
             <h3 className="text-sm font-semibold text-slate-900">
-              Modbus/TCP Holding Registers (Read/Write Controls)
+              Modbus/TCP Holding Registers (Read/Write Controls · R40001–R40006, R40010–R40013)
             </h3>
           </div>
           <span className="text-xs font-mono text-slate-500">
@@ -259,14 +259,14 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">NOMINAL</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-2.5 px-4 font-bold text-slate-900">R40006</td>
+                <td className="py-2.5 px-4 font-bold text-slate-900">R40010</td>
                 <td className="py-2.5 px-4 font-sans">Critical Overspeed Limit</td>
                 <td className="py-2.5 px-4 font-bold">{controls.overspeed_limit} RPM</td>
                 <td className="py-2.5 px-4 text-slate-500">75 RPM</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">INTERLOCK ACTIVE</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
-                <td className="py-2.5 px-4 font-bold text-slate-900">R40007</td>
+                <td className="py-2.5 px-4 font-bold text-slate-900">R40011</td>
                 <td className="py-2.5 px-4 font-sans">High Load Ceiling Threshold</td>
                 <td className="py-2.5 px-4 font-bold">{controls.high_load_limit}%</td>
                 <td className="py-2.5 px-4 text-slate-500">85%</td>
