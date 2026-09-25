@@ -11,8 +11,6 @@ import {
   Layers,
   ArrowRight,
   ShieldAlert,
-  CheckCircle,
-  AlertTriangle,
   Play,
 } from 'lucide-react';
 
@@ -44,7 +42,12 @@ export function CommandCenter({
   const latestEvent = latestEvents[0] || null;
   const isHealthy = systemStatus?.status === 'HEALTHY';
   const liveProcess = demoStatus && demoStatus.process !== 'unavailable' ? demoStatus.process : null;
-  const isDegraded = liveProcess ? liveProcess.speed > demoStatus.controls.overspeed_limit : false;
+  const controls = demoStatus?.controls;
+  const overspeedLimit = controls?.overspeed_limit;
+  const isDegraded =
+    !!liveProcess &&
+    typeof overspeedLimit === 'number' &&
+    liveProcess.speed > overspeedLimit;
 
   return (
     <div className="space-y-6">
@@ -252,7 +255,7 @@ export function CommandCenter({
                       </span>
                       <span className="text-xs font-mono text-slate-500">%</span>
                     </div>
-                    <span className="text-[11px] font-mono text-slate-400">Setpoint: {demoStatus.controls.speed_setpoint} %</span>
+                    <span className="text-[11px] font-mono text-slate-400">Setpoint: {controls?.speed_setpoint ?? '—'} %</span>
                   </div>
 
                   <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
@@ -278,7 +281,7 @@ export function CommandCenter({
           </div>
 
           <div className="pt-4 border-t border-slate-200 mt-4 flex items-center justify-between text-xs font-mono text-slate-500">
-            <span>Safety Limit: {demoStatus?.controls.overspeed_limit || 75} %</span>
+            <span>Safety Limit: {overspeedLimit ?? 75} %</span>
             <span className={isDegraded ? 'text-[#D14343] font-bold' : 'text-[#18875B] font-semibold'}>
               {isDegraded ? 'SAFETY CEILING EXCEEDED' : 'NOMINAL SAFETY ENVELOPE'}
             </span>
