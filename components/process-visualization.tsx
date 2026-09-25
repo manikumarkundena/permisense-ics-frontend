@@ -52,7 +52,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
           <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
             <span>Cycle: {plc.cycle_time_ms ?? '—'}ms</span>
             <span>·</span>
-            <span>Scans: {plc.scans_completed.toLocaleString()}</span>
+            <span>Scans: {plc.scans_completed?.toLocaleString() ?? '—'}</span>
           </div>
         </div>
 
