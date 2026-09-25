@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { virtualCell } from '@/lib/backend/virtual-cell';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,30 +7,19 @@ export async function POST(
   { params }: { params: Promise<{ incident_id: string }> }
 ) {
   const { incident_id } = await params;
-  try {
-    const body = await req.json();
-    const { action, approved_by } = body;
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
 
-    if (!action) {
-      return NextResponse.json(
-        { error: 'Missing action', detail: 'An explicit allowlisted response action is required.' },
-        { status: 400 }
-      );
-    }
+  const response = await fetch(`${base}/api/incidents/${encodeURIComponent(incident_id)}/response/approve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: await req.text(),
+    cache: 'no-store',
+  });
 
-    if (!approved_by) {
-      return NextResponse.json(
-        { error: 'Missing approver', detail: 'Explicit human operator identification is required.' },
-        { status: 400 }
-      );
-    }
-
-    const result = virtualCell.approveResponse(incident_id, action, approved_by);
-    return NextResponse.json(result);
-  } catch (err) {
-    return NextResponse.json(
-      { error: 'Approval Failed', detail: (err as Error).message },
-      { status: 400 }
-    );
-  }
+  const text = await response.text();
+  return new NextResponse(text, {
+    status: response.status,
+    headers: { 'Content-Type': response.headers.get('content-type') || 'application/json' },
+  });
 }
