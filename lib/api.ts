@@ -87,6 +87,66 @@ function normalizeIncidentStatus(status: unknown): IncidentStatus {
   return 'OPEN';
 }
 
+function normalizeResponsePlan(raw: Record<string, any>): ResponsePlan | null {
+  const recommendations = Array.isArray(raw.recommendations) ? raw.recommendations : [];
+  const first = recommendations[0];
+  if (!first) return null;
+
+  const registerAddress = Number(first.register_address);
+  const verificationRegister =
+    first.verification_register === null || first.verification_register === undefined
+      ? null
+      : Number(first.verification_register);
+
+  const approvalState = raw.approval_state ?? (raw.approved ? 'APPROVED' : 'PENDING');
+  const executionState = raw.execution_state ?? (raw.executed ? 'EXECUTED' : 'PENDING');
+  const recoveryState =
+    raw.recovery_state ??
+    (raw.recovered ? 'RECOVERED' : raw.executed ? 'VERIFYING' : 'UNRECOVERED');
+
+  return {
+    ...raw,
+    incident_id: String(raw.incident_id ?? ''),
+    recommendations: recommendations.map((item: any) => ({
+      action: String(item.action ?? ''),
+      description: String(item.description ?? ''),
+      register_address: Number(item.register_address),
+      register_name: item.register_name ? String(item.register_name) : undefined,
+      current_value: item.current_value == null ? undefined : Number(item.current_value),
+      target_value: Number(item.target_value ?? 0),
+      unit: item.unit ? String(item.unit) : '',
+      requires_human_approval: item.requires_human_approval !== false,
+      verification_register: item.verification_register == null ? null : Number(item.verification_register),
+      verification_register_name: item.verification_register_name
+        ? String(item.verification_register_name)
+        : null,
+      verification_type: item.verification_type ? String(item.verification_type) : undefined,
+      verification_threshold: item.verification_threshold
+        ? String(item.verification_threshold)
+        : undefined,
+    })),
+    approved: Boolean(raw.approved),
+    approved_by: raw.approved_by ? String(raw.approved_by) : null,
+    approved_at: raw.approved_at ? String(raw.approved_at) : null,
+    executed: Boolean(raw.executed),
+    executed_at: raw.executed_at ? String(raw.executed_at) : null,
+    recovered: Boolean(raw.recovered),
+    approval_state: String(approvalState) as ResponsePlan['approval_state'],
+    execution_state: String(executionState) as ResponsePlan['execution_state'],
+    recovery_state: String(recoveryState) as ResponsePlan['recovery_state'],
+    recommended_action: String(first.action ?? ''),
+    description: String(first.description ?? ''),
+    register: Number.isFinite(registerAddress) ? 'R' + registerAddress : 'UNKNOWN',
+    register_name: String(first.register_name ?? ('Register ' + registerAddress)),
+    current_value: Number(first.current_value ?? 0),
+    target_value: Number(first.target_value ?? 0),
+    unit: String(first.unit ?? ''),
+    verification_register: verificationRegister == null ? 'N/A' : 'R' + verificationRegister,
+    verification_threshold: String(first.verification_threshold ?? 'Backend-defined recovery criterion'),
+  };
+}
+
+
 function normalizeIncident(raw: Record<string, any>): IncidentDetail {
   const control = raw.control ?? {};
   const impact = raw.impact ?? {};
@@ -103,7 +163,14 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
   }, null);
 
   const riskScore = Number(riskRaw.score ?? raw.risk_score ?? 0);
-  const riskFactors = Array.isArray(riskRaw.factors) ? riskRaw.factors : [];
+  const riskFactors = Array.isArray(riskRaw.factors)
+    ? riskRaw.factors
+    : Object.entries(riskRaw.factors ?? {}).map(([name, value]) => ({
+        name,
+        contributed: Number(value ?? 0),
+        weight: Number(value ?? 0),
+        reason: '',
+      }));
 
   return {
     ...raw,
@@ -123,6 +190,7 @@ function normalizeIncident(raw: Record<string, any>): IncidentDetail {
       id: String(raw.process_id ?? 'UNKNOWN'),
       name: String(raw.process_id ?? 'Industrial Process'),
     },
+    process_name: String(raw.process_id ?? 'Industrial Process'),
     control_change: {
       register: String(control.register_address ?? control.register ?? 'UNKNOWN'),
       register_name: String(control.register_name ?? 'Control Register'),
@@ -221,8 +289,12 @@ export const apiClient = {
       body: JSON.stringify({ status: String(status).toLowerCase() }),
     }),
 
-  getResponsePlan: (incidentId: string) =>
-    request<ResponsePlan>(`/api/incidents/${encodeURIComponent(incidentId)}/response`),
+  getResponsePlan: async (incidentId: string): Promise<ResponsePlan | null> => {
+    const payload = await request<Record<string, any>>(
+      `/api/incidents/${encodeURIComponent(incidentId)}/response`
+    );
+    return normalizeResponsePlan(payload);
+  },
 
   approveResponse: (incidentId: string, action: string, approvedBy = 'operator') =>
     request<{ success?: boolean; status: string; response?: unknown }>(
