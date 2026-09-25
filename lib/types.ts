@@ -115,34 +115,49 @@ export interface IncidentDetail extends IncidentSummary {
   [key: string]: unknown;
 }
 
+export interface DemoPlcStatus {
+  id: string;
+  name: string;
+  protocol: string;
+  host: string;
+  port: number;
+  connection: 'online' | 'offline' | 'degraded' | string;
+  cycle_time_ms?: number;
+  scans_completed?: number;
+}
+
+export interface DemoControls {
+  motor_enable: number | boolean;
+  operating_mode: number;
+  speed_setpoint: number;
+  acceleration_limit: number;
+  production_target: number;
+  overspeed_limit: number;
+  high_load_limit: number;
+  jam_timeout: number;
+  config_version: number;
+}
+
+export interface DemoProcess {
+  speed: number;
+  current: number;
+  load: number;
+  position: number;
+  workpieces: number;
+  jam: number | boolean;
+  state: number;
+  state_label?: string;
+}
+
 export interface DemoStatusResponse {
   status: 'ready' | 'offline' | 'degraded';
-  plc: 'online' | 'offline';
-  process:
-    | {
-        speed: number;
-        current: number;
-        load: number;
-        position: number;
-        workpieces: number;
-        jam: number | boolean;
-        state: number;
-      }
-    | 'unavailable';
-  controls?: {
-    motor_enable: number | boolean;
-    operating_mode: number;
-    speed_setpoint: number;
-    acceleration_limit: number;
-    production_target: number;
-    overspeed_limit: number;
-    high_load_limit: number;
-    jam_timeout: number;
-    config_version: number;
-  };
-  scenarios?: {
-    speed: string;
-    mode: string;
+  plc: DemoPlcStatus;
+  process: DemoProcess | 'unavailable';
+  controls: DemoControls;
+  scenarios: {
+    speed_attack_active: boolean;
+    mode_attack_active: boolean;
+    last_scenario_time: string | null;
   };
   error?: string;
 }
