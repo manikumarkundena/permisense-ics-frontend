@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json(backend || { error: 'Backend system status unavailable' }, { status: response.status || 502 });
   }
 
-  const online = (value: unknown) => String(value).toLowerCase() === 'online';
+  const online = (value: unknown) => ['online', 'configured'].includes(String(value).toLowerCase());
   const operational = String(backend.status || '').toLowerCase() === 'operational';
 
   return NextResponse.json({
