@@ -38,6 +38,9 @@ export function CommandCenter({
   onTriggerDemoScenario,
 }: CommandCenterProps) {
   const latestIncident = incidents[0] || null;
+  const activeIncidents = incidents.filter((incident) =>
+    incident.status === 'OPEN' || incident.status === 'INVESTIGATING' || incident.status === 'CONTAINED'
+  );
   const latestEvent = latestEvents[0] || null;
   const isHealthy = systemStatus?.status === 'HEALTHY';
   const liveProcess = demoStatus && demoStatus.process !== 'unavailable' ? demoStatus.process : null;
@@ -101,7 +104,7 @@ export function CommandCenter({
         {/* Active Incidents Count */}
         <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-slate-500">CORRELATED INCIDENTS</span>
+            <span className="text-xs font-mono text-slate-500">INCIDENTS RECORDED</span>
             <ShieldAlert className={`w-4 h-4 ${incidents.length > 0 ? 'text-[#D14343]' : 'text-slate-400'}`} />
           </div>
           <div className="flex items-baseline gap-2">
@@ -113,7 +116,7 @@ export function CommandCenter({
             </span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
-            {incidents.length > 0 ? `Highest Risk: ${incidents[0].risk_score ?? (typeof incidents[0].risk?.score === 'number' ? incidents[0].risk.score : '—')}/100` : 'Zero active breaches'}
+            {activeIncidents.length > 0 ? `${activeIncidents.length} active · Highest Risk: ${activeIncidents[0].risk_score ?? (typeof activeIncidents[0].risk?.score === 'number' ? activeIncidents[0].risk.score : '—')}/100` : 'No active incidents'}
           </div>
         </div>
       </div>
