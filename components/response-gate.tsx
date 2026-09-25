@@ -107,7 +107,7 @@ export function ResponseGate({
       {/* Safety Workflow Chain */}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-3 text-center text-xs font-mono">
         <div className="p-3 bg-white border border-slate-200 rounded-lg">
-          <span className="text-slate-400 block mb-1">01. CURRENT</span>
+          <span className="text-slate-400 block mb-1">01. OBSERVED</span>
           <span className="font-bold text-red-600">{responsePlan.current_value} {responsePlan.unit}</span>
         </div>
         <div className="p-3 bg-white border border-slate-200 rounded-lg">
@@ -201,7 +201,7 @@ export function ResponseGate({
         <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200">
           <div className="text-xs font-mono text-slate-500">
             {isApproved ? (
-              <span>Approved by: <strong className="text-slate-800">{responsePlan.approved_by}</strong> at {formatDate(responsePlan.executed_at)}</span>
+              <span>Approved by: <strong className="text-slate-800">{responsePlan.approved_by}</strong> at {formatDate(responsePlan.approved_at ?? responsePlan.executed_at)}</span>
             ) : (
               <span>Awaiting explicit human operator authorization</span>
             )}
