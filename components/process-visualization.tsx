@@ -36,7 +36,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
     );
   }
   const formatMetric = (value: number | undefined, digits = 1) =>
-    Number.isFinite(value) ? Number(value).toFixed(digits).replace(/\\.0+$/, '') : '—';
+    Number.isFinite(value) ? Number(value).toFixed(digits).replace(/\.0+$/, '') : '—';
 
   const isOverspeed = process.speed > controls.overspeed_limit;
   const isDegraded = process.state === 3 || isOverspeed;
