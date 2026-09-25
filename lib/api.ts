@@ -78,6 +78,116 @@ function unwrapList<T>(payload: T[] | { incidents?: T[]; events?: T[] }): T[] {
   return [];
 }
 
+function normalizeIncidentStatus(status: unknown): IncidentStatus {
+  const value = String(status ?? 'open').toUpperCase();
+  if (value === 'RESPONDED' || value === 'ACTION_PENDING') return 'CONTAINED';
+  if (value === 'OPEN' || value === 'INVESTIGATING' || value === 'CONTAINED' || value === 'RECOVERED' || value === 'CLOSED') {
+    return value as IncidentStatus;
+  }
+  return 'OPEN';
+}
+
+function normalizeIncident(raw: Record<string, any>): IncidentDetail {
+  const control = raw.control ?? {};
+  const impact = raw.impact ?? {};
+  const riskRaw = raw.risk ?? {};
+  const detections = Array.isArray(raw.detections) ? raw.detections : [];
+  const firstDetection = detections[0] ?? {};
+  const mitre = Array.isArray(raw.mitre_mappings) ? raw.mitre_mappings : [];
+  const graph = raw.evidence_graph ?? {};
+  const processEvents = Array.isArray(raw.process_events) ? raw.process_events : [];
+
+  const processPeak = processEvents.reduce((peak: number | null, event: any) => {
+    const value = Number(event?.value);
+    return Number.isFinite(value) ? Math.max(peak ?? value, value) : peak;
+  }, null);
+
+  const riskScore = Number(riskRaw.score ?? raw.risk_score ?? 0);
+  const riskFactors = Array.isArray(riskRaw.factors) ? riskRaw.factors : [];
+
+  return {
+    ...raw,
+    incident_id: String(raw.incident_id ?? 'UNKNOWN'),
+    title: String(raw.title ?? 'Industrial incident'),
+    severity: String(raw.severity ?? 'MEDIUM').toUpperCase() as IncidentSummary['severity'],
+    status: normalizeIncidentStatus(raw.status),
+    asset_id: String(raw.asset_id ?? 'UNKNOWN'),
+    process_id: raw.process_id ? String(raw.process_id) : undefined,
+    timestamp: String(raw.timestamp ?? new Date().toISOString()),
+    asset: {
+      id: String(raw.asset_id ?? 'UNKNOWN'),
+      name: String(raw.asset_id ?? 'Industrial Asset'),
+      zone: 'Industrial Cell',
+    },
+    process: {
+      id: String(raw.process_id ?? 'UNKNOWN'),
+      name: String(raw.process_id ?? 'Industrial Process'),
+    },
+    control_change: {
+      register: String(control.register_address ?? control.register ?? 'UNKNOWN'),
+      register_name: String(control.register_name ?? 'Control Register'),
+      previous_value: Number(control.previous_value ?? 0),
+      new_value: Number(control.new_value ?? 0),
+      unit: String(control.unit ?? ''),
+    },
+    process_deviation: {
+      register: String(impact.register ?? processEvents[0]?.register_address ?? 'R30001'),
+      physical_sensor: String(impact.physical_sensor ?? 'Process telemetry'),
+      peak_observed: Number(impact.observed_value ?? processPeak ?? 0),
+      unit: String(impact.unit ?? 'value'),
+    },
+    detection: {
+      rule_id: String(firstDetection.rule_id ?? firstDetection.detection_id ?? 'CORRELATION'),
+      detector: String(firstDetection.detector ?? firstDetection.description ?? 'Deterministic correlation engine'),
+      confidence: String(firstDetection.confidence ?? 'CORRELATED'),
+    },
+    correlation: {
+      time_delta_ms: Number(raw.correlation?.time_delta_ms ?? 0),
+      causality_score: Number(raw.correlation?.causality_score ?? 0),
+    },
+    mitre_attack: mitre.map((item: any) => ({
+      technique_id: String(item.technique_id ?? item.id ?? 'UNKNOWN'),
+      tactic: String(item.tactic ?? 'ICS'),
+      technique_name: String(item.technique_name ?? item.name ?? 'Mapped technique'),
+      description: String(item.description ?? ''),
+    })),
+    operational_impact: {
+      physical_process_state: String(impact.physical_process_state ?? impact.state ?? 'PROCESS DEVIATION'),
+      safe_limit: Number(impact.safe_limit ?? 0),
+      observed_value: Number(impact.observed_value ?? processPeak ?? 0),
+      unit: String(impact.unit ?? 'value'),
+      summary: String(impact.summary ?? raw.reason ?? 'Correlated cyber-physical process deviation.'),
+    },
+    risk: {
+      score: Number.isFinite(riskScore) ? riskScore : 0,
+      level: String(riskRaw.level ?? 'unknown'),
+      calculation_timestamp: String(riskRaw.calculation_timestamp ?? raw.timestamp ?? new Date().toISOString()),
+      factors: riskFactors.map((factor: any) => ({
+        name: String(factor.name ?? 'Risk factor'),
+        contributed: Number(factor.contributed ?? 0),
+        weight: Number(factor.weight ?? 0),
+        reason: String(factor.reason ?? ''),
+      })),
+    },
+    evidence_graph: {
+      nodes: Array.isArray(graph.nodes) ? graph.nodes.map((node: any) => ({
+        id: String(node.id ?? node.type ?? Math.random()),
+        type: String(node.type ?? 'EVIDENCE'),
+        label: String(node.label ?? node.name ?? ''),
+        sublabel: node.sublabel ? String(node.sublabel) : undefined,
+        status: node.status ? String(node.status) : undefined,
+      })) : [],
+      edges: Array.isArray(graph.edges) ? graph.edges.map((edge: any) => ({
+        label: edge.label ? String(edge.label) : undefined,
+        source: edge.source ? String(edge.source) : undefined,
+        target: edge.target ? String(edge.target) : undefined,
+      })) : [],
+    },
+    response_plan: null,
+    risk_score: Number.isFinite(riskScore) ? riskScore : undefined,
+  };
+}
+
 export const apiClient = {
   getHealth: () => request<HealthResponse>('/api/health'),
   getSystemStatus: () => request<SystemStatusResponse>('/api/system/status'),
@@ -95,11 +205,15 @@ export const apiClient = {
     const payload = await request<IncidentSummary[] | { incidents?: IncidentSummary[] }>(
       '/api/incidents'
     );
-    return unwrapList(payload);
+    return unwrapList(payload).map((item) => normalizeIncident(item as unknown as Record<string, any>));
   },
 
-  getIncident: (incidentId: string) =>
-    request<IncidentDetail>(`/api/incidents/${encodeURIComponent(incidentId)}`),
+  getIncident: async (incidentId: string) => {
+    const payload = await request<Record<string, any>>(
+      `/api/incidents/${encodeURIComponent(incidentId)}`
+    );
+    return normalizeIncident(payload);
+  },
 
   updateIncidentStatus: (incidentId: string, status: IncidentStatus) =>
     request<IncidentSummary>(`/api/incidents/${encodeURIComponent(incidentId)}/status`, {
