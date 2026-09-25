@@ -109,7 +109,11 @@ export default function HomePage() {
           <LandingView
             onNavigateToConsole={() => handleNavigate('command-center')}
             onNavigateToDemo={() => handleNavigate('demo-lab')}
-            actualSpeed={demoStatus?.process.speed || 50}
+            actualSpeed={
+              demoStatus && demoStatus.process !== 'unavailable'
+                ? demoStatus.process.speed
+                : 50
+            }
             isAlert={isAlert}
           />
         )}
