@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server';
-import { virtualCell } from '@/lib/backend/virtual-cell';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST() {
-  try {
-    const result = virtualCell.triggerModeScenario();
-    return NextResponse.json(result);
-  } catch (err) {
-    return NextResponse.json(
-      { error: 'Scenario Trigger Failed', detail: (err as Error).message },
-      { status: 500 }
-    );
-  }
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+  if (!base) return NextResponse.json({ error: 'NEXT_PUBLIC_API_URL is not configured' }, { status: 500 });
+
+  const response = await fetch(`${base}/api/demo/scenarios/mode`, {
+    method: 'POST',
+    cache: 'no-store',
+  });
+  const text = await response.text();
+  return new NextResponse(text, {
+    status: response.status,
+    headers: { 'Content-Type': response.headers.get('content-type') || 'application/json' },
+  });
 }
