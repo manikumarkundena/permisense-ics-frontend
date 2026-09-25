@@ -84,7 +84,12 @@ export const apiClient = {
 
   // Telemetry history is not exposed by the authoritative backend.
   // Live telemetry arrives through /ws/events instead.
-  getTelemetryEvents: async (_limit = 50) => [],
+  getTelemetryEvents: async (limit = 80) => {
+    const payload = await request<TelemetryEvent[] | { events?: TelemetryEvent[] }>(
+      `/api/telemetry/events?limit=${limit}`
+    );
+    return unwrapList(payload);
+  },
 
   getIncidents: async () => {
     const payload = await request<IncidentSummary[] | { incidents?: IncidentSummary[] }>(
@@ -120,28 +125,16 @@ export const apiClient = {
       { method: 'POST' }
     ),
 
-  getDemoStatus: async () => {
-    const [health, system] = await Promise.all([
-      request<HealthResponse>('/api/health'),
-      request<SystemStatusResponse>('/api/system/status'),
-    ]);
-
-    return {
-      health,
-      system,
-      source: 'real-backend',
-      api_base_url: getBaseUrl(),
-    } as unknown as DemoStatusResponse;
-  },
+  getDemoStatus: () => request<DemoStatusResponse>('/api/demo/status'),
 
   triggerSpeedScenario: () =>
-    request<{ triggered?: boolean; scenario?: string; register?: string; value?: number; incident_id?: string }>(
+    request<{ scenario?: string; description?: string; result?: { register_address?: number; previous_value?: number; value?: number; execution?: string; allowlisted?: boolean } }>(
       '/api/demo/scenarios/speed',
       { method: 'POST' }
     ),
 
   triggerModeScenario: () =>
-    request<{ triggered?: boolean; scenario?: string; register?: string; value?: number; incident_id?: string }>(
+    request<{ scenario?: string; description?: string; result?: { register_address?: number; previous_value?: number; value?: number; execution?: string; allowlisted?: boolean } }>(
       '/api/demo/scenarios/mode',
       { method: 'POST' }
     ),
