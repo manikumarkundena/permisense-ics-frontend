@@ -229,15 +229,15 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
                 <td className="py-2.5 px-4 text-slate-500">1 (Enabled)</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">NOMINAL</td>
               </tr>
-              <tr className={`hover:bg-slate-50/50 ${controls.operating_mode === 3 ? 'bg-amber-50/60' : ''}`}>
+              <tr className={`hover:bg-slate-50/50 ${controls.operating_mode !== 1 ? 'bg-amber-50/60' : ''}`}>
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40002</td>
                 <td className="py-2.5 px-4 font-sans">Operating Mode (Auto / Manual)</td>
                 <td className="py-2.5 px-4 font-bold">
-                  {controls.operating_mode} ({controls.operating_mode === 1 ? 'Auto' : controls.operating_mode === 2 ? 'Jog' : 'Unrestricted Manual'})
+                  {controls.operating_mode} ({controls.operating_mode === 1 ? 'Auto' : controls.operating_mode === 2 ? 'Program' : controls.operating_mode === 0 ? 'Stop' : 'Unknown'})
                 </td>
                 <td className="py-2.5 px-4 text-slate-500">1 (Auto)</td>
-                <td className={`py-2.5 px-4 font-semibold ${controls.operating_mode === 3 ? 'text-amber-700' : 'text-[#18875B]'}`}>
-                  {controls.operating_mode === 3 ? 'MODIFIED OUTSIDE TICKET' : 'NOMINAL'}
+                <td className={`py-2.5 px-4 font-semibold ${controls.operating_mode === 1 ? 'text-[#18875B]' : 'text-amber-700'}`}>
+                  {controls.operating_mode === 1 ? 'NOMINAL' : 'MODIFIED OUTSIDE TICKET'}
                 </td>
               </tr>
               <tr className={`hover:bg-slate-50/50 ${controls.speed_setpoint > controls.overspeed_limit ? 'bg-red-50/60' : ''}`}>
