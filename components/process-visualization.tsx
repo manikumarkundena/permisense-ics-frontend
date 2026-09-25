@@ -40,6 +40,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
 
   const isOverspeed = process.speed > controls.overspeed_limit;
   const isDegraded = process.state === 3 || isOverspeed;
+  const stateLabel = process.state_label ?? formatProcessState(process.state);
 
   return (
     <div className="space-y-6">
@@ -113,8 +114,8 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
             <div className="text-sm font-bold text-slate-900">Conveyor Assembly</div>
             <div className="text-xs font-mono text-slate-500">Encoder: R30001 = {formatMetric(process.speed)} %</div>
             <div className="mt-2">
-              <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${getStatusBadgeClass(process.state_label)}`}>
-                R30007: {process.state} — {formatProcessState(process.state)}
+              <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold border ${getStatusBadgeClass(stateLabel)}`}>
+                R30007: {process.state} — {stateLabel}
               </span>
             </div>
           </div>
@@ -191,7 +192,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
             <span className="text-3xl font-mono font-bold tabular-nums text-[#0B1220]">
               {formatMetric(process.position)}
             </span>
-            <span className="text-xs font-mono text-slate-500">mm / 1000</span>
+            <span className="text-xs font-mono text-slate-500">%</span>
           </div>
           <div className="mt-2 text-[11px] font-mono text-slate-500">
             Workpieces (R30005): {Number.isFinite(process.workpieces) ? process.workpieces.toLocaleString() : '—'} units
@@ -249,7 +250,7 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
                 <td className={`py-2.5 px-4 font-bold text-sm ${controls.speed_setpoint > controls.overspeed_limit ? 'text-[#D14343]' : 'text-slate-900'}`}>
                   {controls.speed_setpoint} %
                 </td>
-                <td className="py-2.5 px-4 text-slate-500">50 % (Ceiling: 75 %)</td>
+                <td className="py-2.5 px-4 text-slate-500">50 % (Ceiling: {controls.overspeed_limit} %)</td>
                 <td className={`py-2.5 px-4 font-semibold ${controls.speed_setpoint > controls.overspeed_limit ? 'text-[#D14343]' : 'text-[#18875B]'}`}>
                   {controls.speed_setpoint > controls.overspeed_limit ? 'UNAUTHORIZED OVERRIDE' : 'NOMINAL'}
                 </td>
@@ -258,21 +259,21 @@ export function ProcessVisualization({ demoStatus, loading }: ProcessVisualizati
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40004</td>
                 <td className="py-2.5 px-4 font-sans">Acceleration Rate Limit</td>
                 <td className="py-2.5 px-4 font-bold">{controls.acceleration_limit} %/s</td>
-                <td className="py-2.5 px-4 text-slate-500">15 %/s</td>
+                <td className="py-2.5 px-4 text-slate-500">Configured limit</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">NOMINAL</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40010</td>
                 <td className="py-2.5 px-4 font-sans">Critical Overspeed Limit</td>
                 <td className="py-2.5 px-4 font-bold">{controls.overspeed_limit} %</td>
-                <td className="py-2.5 px-4 text-slate-500">75 %</td>
+                <td className="py-2.5 px-4 text-slate-500">Configured limit</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">INTERLOCK ACTIVE</td>
               </tr>
               <tr className="hover:bg-slate-50/50">
                 <td className="py-2.5 px-4 font-bold text-slate-900">R40011</td>
                 <td className="py-2.5 px-4 font-sans">High Load Ceiling Threshold</td>
                 <td className="py-2.5 px-4 font-bold">{controls.high_load_limit}%</td>
-                <td className="py-2.5 px-4 text-slate-500">85%</td>
+                <td className="py-2.5 px-4 text-slate-500">Configured limit</td>
                 <td className="py-2.5 px-4 text-[#18875B] font-semibold">INTERLOCK ACTIVE</td>
               </tr>
             </tbody>
